@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
   
 # https://networkx.github.io/documentation/networkx-1.10/reference/generated/networkx.algorithms.centrality.eigenvector_centrality.html
 def run_prediction(G, pos):
+    print("Running Prediction")
     # calculate eigenvector_centrality
-    centrality = nx.eigenvector_centrality(G)
+    centrality = nx.eigenvector_centrality(G, weight="weight")
 
     # find scale for the "redness" of each node
     scale = 1/max(centrality.values())
@@ -26,6 +27,6 @@ def run_prediction(G, pos):
 
     # draw all labels on the graph
     nx.draw_networkx_labels(G,pos,labels,font_size=4, font_color="#FFFFFF")
-
+    print("Finished Prediction")
     
 

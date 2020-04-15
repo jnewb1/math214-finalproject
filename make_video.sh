@@ -1,0 +1,1 @@
+ffmpeg -r 2 -i "/mnt/c/Users/justin/Desktop/214_slide_pictures/%d.png" -c:v libx264 -vf fps=5 -s 1920x1080 out.mp4

@@ -1,3 +1,4 @@
 venv/
 .vscode/
-__pycache_/
+__pycache__/
+out.mp4
