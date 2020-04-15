@@ -1,38 +1,32 @@
-import networkx as nx 
-  
-#importing the matplotlib library for plotting the graph 
-import matplotlib.pyplot as plt 
-  
-fig = plt.gcf()
-fig.canvas.set_window_title('Random Graph + Eigenvector Centrality')
+from prediction import run_prediction
+from simulation import run_simulation
 
-# random graph
+import networkx as nx
+import matplotlib.pyplot as plt
 
-G = nx.erdos_renyi_graph(20, 0.2, 10) 
+fig, ax = plt.subplots(1, 2, num=1, figsize=(10,5))
+fig.tight_layout(pad=1.5)
 
-# calculate eigenvector_centrality
-centrality = nx.eigenvector_centrality(G)
+fig.canvas.set_window_title('Eigenvector Centrality - Prediction of Hotspots')
 
-scale = 1/max(centrality.values())
+num_nodes = 100 # number of people in the simulation
+connections_per_node = 2 # average number of connections that each node has
 
-pos=nx.spectral_layout(G)
+# create random graph
+G = nx.erdos_renyi_graph(num_nodes, connections_per_node / num_nodes, 10)
 
-# setup labels for graph
-labels = {}
+# layout for the nodes
+pos=nx.spring_layout(G)
 
-for node in range(len(centrality.items())):
-    nx.draw_networkx_nodes(G,pos,
-                        nodelist=[node],
-                        node_color=[(centrality[node]*scale ,0,0)],
-                        node_size=100,
-                    )
-    labels[node] = "{:0.2f}".format(centrality[node])
-
-# edges
-nx.draw_networkx_edges(G,pos,width=1.0,alpha=0.5)
-
-# some math labels
-nx.draw_networkx_labels(G,pos,labels,font_size=4, font_color="#FFFFFF")
+# plot the prediction on the left window
+left = ax[0]
+plt.sca(left)
+left.set_title("Prediction")
+run_prediction(G, pos)
+# plot the simulation on the right window
+right = ax[1]
+plt.sca(right)
+right.set_title("Simulation")
+run_simulation(G, pos)
 
 plt.show()
-
