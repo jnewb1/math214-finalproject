@@ -1,7 +1,7 @@
 import networkx as nx 
 import matplotlib.pyplot as plt 
   
-
+# https://networkx.github.io/documentation/networkx-1.10/reference/generated/networkx.algorithms.centrality.eigenvector_centrality.html
 def run_prediction(G, pos):
     # calculate eigenvector_centrality
     centrality = nx.eigenvector_centrality(G)

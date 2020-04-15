@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 from epydemic import *
 
+# https://pyepydemic.readthedocs.io/en/latest/tutorial/build-sir.html
 class SIR(CompartmentedModel):
 
     # the possible dynamics states of a node for SIR dynamics
@@ -64,7 +65,7 @@ def run_simulation(G, pos):
 
     nodes = {}
 
-    
+    # get all nodes that are susceptible, recovered, or infected
     for node in susceptible:
         nodes[node] = "S"
     for node in recovered:
@@ -81,7 +82,7 @@ def run_simulation(G, pos):
         # draw node on the graph
         nx.draw_networkx_nodes(G,pos,
             nodelist=[node],
-            node_color=[(nodes[node] == "R",0,0)],
+            node_color=[(nodes[node] == "R" or nodes[node] == "I",0,0)],
             node_size=100,
         )
 
