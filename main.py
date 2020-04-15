@@ -13,6 +13,8 @@ G = nx.erdos_renyi_graph(20, 0.2, 10)
 # calculate eigenvector_centrality
 centrality = nx.eigenvector_centrality(G)
 
+scale = 1/max(centrality.values())
+
 pos=nx.spectral_layout(G)
 
 # setup labels for graph
@@ -21,7 +23,7 @@ labels = {}
 for node in range(len(centrality.items())):
     nx.draw_networkx_nodes(G,pos,
                         nodelist=[node],
-                        node_color=[(min(centrality[node]*2, 1) ,0,0)],
+                        node_color=[(centrality[node]*scale ,0,0)],
                         node_size=100,
                     )
     labels[node] = "{:0.2f}".format(centrality[node])
