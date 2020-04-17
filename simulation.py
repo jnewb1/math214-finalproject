@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 
 from epydemic import *
 
+import random
+
+p = 0
+
 # https://pyepydemic.readthedocs.io/en/latest/tutorial/build-sir.html
 # COVID-19 Recovery Article https://time.com/5810454/coronavirus-immunity-reinfection/
 class SIR(CompartmentedModel):
@@ -49,21 +53,22 @@ class SIR(CompartmentedModel):
         (n, m) = e
         self.changeCompartment(n, self.INFECTED)
         self.markOccupied(e, t)
-        update_gui(self)
+        update_gui(self, t)
+        
 
     def infect_recovered( self, t, e ):
         (n, m) = e
         self.changeCompartment(n, self.INFECTED)
         self.markOccupied(e, t)
-        update_gui(self)
+        update_gui(self, t)
 
     def remove( self, t, n ):
         self.changeCompartment(n, self.REMOVED)
-        update_gui(self)
+        update_gui(self, t)
     
     def dead( self, t, n):
         self.changeCompartment(n, self.DEAD)
-        update_gui(self)
+        update_gui(self, t)
     
 G_ = None
 pos_ = None
@@ -72,60 +77,63 @@ fig_ = None
 
 x = 0
 
-def update_gui(m):
+p = 0
 
+def update_gui(m, t):
+    return # dont create gui for now
     global x
+    global p
 
-    susceptible = []
-    recovered = []
-    infected = []
-    dead = []
+    if(t - .5 > p):
+        p = t
 
-    if('S' in m.compartments()):
-        susceptible  = m.compartment('S')
-    if('R' in m.compartments()):
-        recovered = m.compartment('R')
-    if('I' in m.compartments()):    
-        infected = m.compartment('I')
-    if('D' in m.compartments()):    
-        dead = m.compartment('D')
-    
+        susceptible = []
+        recovered = []
+        infected = []
+        dead = []
 
-    nodes = {}
+        if('S' in m.compartments()):
+            susceptible  = m.compartment('S')
+        if('R' in m.compartments()):
+            recovered = m.compartment('R')
+        if('I' in m.compartments()):    
+            infected = m.compartment('I')
+        if('D' in m.compartments()):    
+            dead = m.compartment('D')
+        
 
-    # get all nodes that are susceptible, recovered, or infected
-    for node in susceptible:
-        nodes[node] = "S"
-    for node in recovered:
-        nodes[node] = "R"
-    for node in infected:
-        nodes[node] = "I"
-    for node in dead:
-        nodes[node] = "D"
-    
-    print(dead)
-    
-    labels = {}    
+        nodes = {}
 
-    for node in nodes:
-        # setup labels for each node with centrality 
-        labels[node] = ""
+        # get all nodes that are susceptible, recovered, or infected
+        for node in susceptible:
+            nodes[node] = "S"
+        for node in recovered:
+            nodes[node] = "R"
+        for node in infected:
+            nodes[node] = "I"
+        for node in dead:
+            nodes[node] = "D"
+        
+        labels = {}    
 
-        # draw node on the graph
-        nx.draw_networkx_nodes(G_,pos_,
-            nodelist=[node],
-            node_color=[( nodes[node] == "D", nodes[node] == "R", nodes[node] == "I" )],
-            node_size=100,
-        )
-    
-    plt.draw()
+        for node in nodes:
+            # setup labels for each node with centrality 
+            labels[node] = ""
 
-    extent = ax_.get_tightbbox(renderer = fig_.canvas.get_renderer()).transformed(fig_.dpi_scale_trans.inverted())
-    fig_.savefig("/mnt/c/Users/justin/Desktop/214_slide_pictures/" + str(x) + ".png", dpi=500,
-    bbox_inches=extent)
-    x+=1
+            # draw node on the graph
+            nx.draw_networkx_nodes(G_,pos_,
+                nodelist=[node],
+                node_color=[( nodes[node] == "D", nodes[node] == "R", nodes[node] == "I" )],
+                node_size=100,
+            )
+        plt.draw()
 
-def run_simulation(G, pos, ax, fig):
+        #extent = ax_.get_tightbbox(renderer = fig_.canvas.get_renderer()).transformed(fig_.dpi_scale_trans.inverted())
+        #fig_.savefig("214_slide_pictures/" + str(x) + ".png", dpi=500,
+        #bbox_inches=extent)
+        #x+=1
+
+def run_simulation(G, pos, ax, fig, weights):
     global G_
     global pos_
     global ax_
@@ -139,11 +147,11 @@ def run_simulation(G, pos, ax, fig):
     print("Running Simulation")
     param = dict()
     # infected by anther infected
-    param[SIR.P_INFECT] = .5
+    param[SIR.P_INFECT] = .5 / 27000
 
     # being removed when infected
     # Recovery Rate: https://www.fatherly.com/news/recovery-rate-coronavirus/
-    param[SIR.P_REMOVE] = 0.3
+    param[SIR.P_REMOVE] = 0.2
     
     # starting infected
     param[SIR.P_INFECTED] = 0.05
@@ -162,12 +170,22 @@ def run_simulation(G, pos, ax, fig):
     e = StochasticDynamics(m, G)   # use stochastic (Gillespie) dynamics
     
       # draw all edges on the graph
-    nx.draw_networkx_edges(G,pos,width=1.0,alpha=0.5)
+    nx.draw_networkx_edges(G,pos,weight=1.0, edge_colors=weights)
 
 
     # set the parameters we want and run the simulation
     rc = e.set(param).run()
+
+    if('S' in m.compartments()):
+        susceptible  = m.compartment('S')
+    if('R' in m.compartments()):
+        recovered = m.compartment('R')
+    if('I' in m.compartments()):    
+        infected = m.compartment('I')
+    if('D' in m.compartments()):    
+        dead = m.compartment('D')
     
+    print("Susceptible: {}\nRecovered: {}\nInfected: {}\nDead: {}\n".format(len(susceptible), len(recovered), len(infected), len(dead)))
 
     
     print("Finished Simulation")
